@@ -21,7 +21,7 @@ class Record:
         # use tablename if specified or generate one
         self.tablename:str = tablename or self.record_id
         self.table_is_valid = False
-        self.connect_uri:str = os.environ.get('SQLALCHEMY_MYSQL_URI')
+        self.connect_uri:str = os.environ.get(SQLALCHEMY_CONNECT_URI)
         self.engine:str = ''
         self.conn:str = ''
         self.meta:str = ''
