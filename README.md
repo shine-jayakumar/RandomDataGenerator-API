@@ -7,6 +7,9 @@
 <img src="https://github.com/shine-jayakumar/RandomDataGenerator-API/blob/master/randomdatagen.JPG"/>
 </p>
 
+#### Endpoint
+[https://randomdatagenerator-api.herokuapp.com/](https://randomdatagenerator-api.herokuapp.com/)
+
 #### Documentation
 [Documentation](https://documenter.getpostman.com/view/10815384/Uz5CLJDt)
 
