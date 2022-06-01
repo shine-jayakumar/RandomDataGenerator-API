@@ -66,3 +66,19 @@ def parse_search_params(request_params) -> dict:
         if param_val:
             parsed_params[param] = param_val
     return parsed_params
+
+
+def get_params_as_string(request):
+    """
+    Returns paramerts in request.args as a string
+    Ex:
+        {'firstname':'John', 'lastname'='Smith'} as
+        firstname=John&lastname=Smith
+    """
+    if request.method == 'GET':
+        base_url = request.base_url + '?'
+        return request.url.replace(base_url, '')
+    
+    if request.method == 'POST':
+        param_list = [f'{key}={val}' for key,val in request.args.items()]
+        return '&'.join(param_list)

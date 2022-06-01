@@ -7,14 +7,16 @@
 # Author: Shine Jayakumar
 
 
-
 from flask import Flask, render_template, request
-from common import parse_search_params, validate_search_params, get_random_records
+from common import parse_search_params, validate_search_params, get_params_as_string
+from common import get_random_records
 from persistent import Record
 from response import Response, ResponseMessages
-
+from caching import LRUCache
 
 app = Flask(__name__)
+
+cache = LRUCache(maxsize=500)
 
 @app.route('/')
 @app.route('/generate')
@@ -22,6 +24,7 @@ app = Flask(__name__)
 def version():
     return render_template('usage.html')
     
+
 # Endpoint: /generate/<int:nrec>
 # Generates random records
 @app.route('/generate/<int:nrec>', methods=['GET'])
@@ -42,13 +45,27 @@ def generate_records(nrec):
 # Search functionality with record_id, firstname, lastname, and address
 @app.route('/search', methods=['GET','POST'])
 def search():
-    validity_response = validate_search_params(request.args)
+    response_validity = validate_search_params(request.args)
 
     # Invalid search parameters
-    if not validity_response.success:
-        return validity_response.get_response()
-
+    if not response_validity.success:
+        return response_validity.get_response()
+    
+    # param:val pair -> dict
     parsed_search_params = parse_search_params(request.args)
+
+    # firstname=John&lastname=Smith
+    params_as_string = get_params_as_string(request)
+
+    # check in cache
+    if cache.exists(params_as_string):
+        search_result = cache.get(params_as_string)
+        return Response(
+            True,
+            ResponseMessages.SuccessfulSearch.value,
+            parsed_search_params['record_id'],
+            search_result).get_response()
+    
     # Instantiate record for searching
     record = Record(parsed_search_params['record_id'], search=True)
 
@@ -58,7 +75,14 @@ def search():
 
     search_result = record.search_db(parsed_search_params)
 
-    return search_result.get_response()
+    # store in cache
+    cache.set(params_as_string, search_result)
+    
+    return Response(
+        True,
+        ResponseMessages.SuccessfulSearch.value,
+        record.tablename,
+        search_result).get_response()
 
 
 if __name__ == '__main__':

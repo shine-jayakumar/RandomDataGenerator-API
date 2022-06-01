@@ -2,10 +2,12 @@
 # Contains contstants
 
 from typing import NewType
-import os
+import os 
+
 
 table = NewType('DBTable', str)
 dbconnection = NewType('DBConnection', str)
 
 SQLALCHEMY_CONNECT_URI = os.environ.get('SQLALCHEMY_MYSQL_URI')
 DBNAME = os.environ.get('DATABASE_NAME')
+

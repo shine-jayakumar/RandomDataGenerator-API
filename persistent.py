@@ -1,4 +1,3 @@
-
 # persistent.py
 # Function and class to allow persistence
 
@@ -6,10 +5,12 @@ from sqlalchemy import create_engine, inspect, MetaData, Table, Column, Integer,
 from sqlalchemy import and_, text, select
 from uuid import uuid4
 from constants import *
-from response import Response, ResponseMessages
+from response import Response
 import os
-# from functools import lru_cache
-# from methodtools import lru_cache
+
+
+
+ENGINE = create_engine(SQLALCHEMY_CONNECT_URI)
 
 
 class Record:
@@ -23,15 +24,15 @@ class Record:
         self.tablename:str = tablename or self.record_id
         self.table_is_valid = False
         self.connect_uri:str = SQLALCHEMY_CONNECT_URI
-        self.engine:str = ''
-        self.conn:str = ''
-        self.meta:str = ''
+        self.engine:str = None
+        self.conn:str = None
+        self.meta:str = None
  
         self._init_connection()
 
 
     def _init_connection(self) -> None:
-        self.engine = create_engine(self.connect_uri)
+        self.engine = ENGINE
         self.conn = self.engine.connect()
         self.inspect = inspect(self.engine)
         self.meta = MetaData(bind=self.engine)
@@ -70,7 +71,7 @@ class Record:
         self.records = records
         self.conn.execute(self.user.insert(), self.records)
     
-    def search_db(self, parsed_search_params) -> Response:
+    def search_db(self, parsed_search_params) -> list[dict]:
         query = select([self.user.c.firstname, self.user.c.lastname, self.user.c.address])
         conditions = []
 
@@ -78,7 +79,6 @@ class Record:
         if len(parsed_search_params) > 1:
             # keys -> firstname, lastname, address
             for key,val in parsed_search_params.items():
-                # conditions.append(text(f"{key}='{val}'"))
                 if key != 'record_id':
                     conditions.append(f"LOWER({key})='{val.lower()}'")
 
@@ -92,12 +92,8 @@ class Record:
         raw_search_result = self.conn.execute(query).fetchall()
         # get results as list[dict]
         processed_search_results = self.process_search_results(raw_search_result)
-
-        return Response(
-            True,
-            ResponseMessages.SuccessfulSearch.value,
-            self.tablename,
-            processed_search_results)
+        return processed_search_results
+        
     
     def process_search_results(self, raw_search_result:list[tuple]) -> list[dict]:
         """
@@ -120,3 +116,10 @@ class Record:
         if self.records:
             return Response(True, 'Records generated', self.tablename, self.records)
         
+
+# @cache.memoize(timeout=60)
+# def execute_query(query):
+#     print('fetching records...')
+#     conn = ENGINE.connect()
+#     result = conn.execute(query).fetchall()
+#     return result

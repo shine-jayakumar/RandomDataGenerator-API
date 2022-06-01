@@ -11,7 +11,7 @@
 [https://randomdatagenerator-api.herokuapp.com/](https://randomdatagenerator-api.herokuapp.com/)
 
 #### Documentation
-[Documentation](https://documenter.getpostman.com/view/10815384/Uz5CLJDt)
+[https://documenter.getpostman.com/view/10815384/Uz5CLJDt](https://documenter.getpostman.com/view/10815384/Uz5CLJDt)
 
 #### Author
 Shine Jayakumar
