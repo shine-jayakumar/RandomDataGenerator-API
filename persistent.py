@@ -6,12 +6,9 @@ from sqlalchemy import and_, text, select
 from uuid import uuid4
 from constants import *
 from response import Response
-import os
-
 
 
 ENGINE = create_engine(SQLALCHEMY_CONNECT_URI)
-
 
 class Record:
 
@@ -115,11 +112,3 @@ class Record:
         """
         if self.records:
             return Response(True, 'Records generated', self.tablename, self.records)
-        
-
-# @cache.memoize(timeout=60)
-# def execute_query(query):
-#     print('fetching records...')
-#     conn = ENGINE.connect()
-#     result = conn.execute(query).fetchall()
-#     return result
